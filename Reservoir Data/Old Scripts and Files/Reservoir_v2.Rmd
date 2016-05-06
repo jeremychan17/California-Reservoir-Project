@@ -1,0 +1,155 @@
+---
+title: "Reservoir v2"
+output: html_document
+---
+
+Loading Data (Shasta Test)
+```{r}
+# Notes
+# Sensor ID: http://cdec.water.ca.gov/misc/senslist.html
+library(sharpshootR)
+library(ggplot2)
+library(XML)
+
+shasta = CDECquery("SHA", 15, interval = "M", "1900-01-01", Sys.Date())
+shasta$cap = shasta$value/4552000 * 100
+
+data = ts(shasta$cap, start = c(1954, 01), end = c(2015, 12), frequency = 12)
+data2 = ts(shasta$cap, start = c(1953, 10), end = c(2016, 3), frequency = 12)
+x = as.vector(data)
+n = length(data)
+t = 1:n
+```
+
+Data inspection
+```{r}
+plot(data)
+```
+
+Impute missing values
+```{r}
+y = sapply(1:length(x), function(i){
+  if(is.na(x[i])==T)
+  {
+    x[i] = (x[i-1]+x[i+1])/2
+  }
+  else x[i] = x[i]
+})
+
+```
+
+Remove trend with differencing
+```{r}
+y = diff(y)
+```
+
+
+Remove seasonality with sum of harmonics
+```{r}
+# Removal seasonal component
+
+# Rescale t
+n = length(t)
+t = 1:length(y)
+t = (t)/n
+
+# Matrix of harmonics
+d = 12
+n.harm = d/2
+harm = matrix(nrow=length(t), ncol=2*n.harm)
+for(i in 1:n.harm){
+  harm[,i*2-1] = sin(n/d * i *2*pi*t)
+  harm[,i*2] = cos(n/d * i *2*pi*t)
+}
+colnames(harm)= 
+    paste0(c("sin", "cos"), rep(1:n.harm, each = 2))
+
+# Fit on all of the sines and cosines
+dat = data.frame(y, harm)
+fit = lm(y~., data=dat)
+
+# Setup the full model and the model with only an intercept
+full = lm(y~.,data=dat)
+reduced = lm(y~1, data=dat)
+
+# Stepwise regression starting with the full model
+fit.back = step(full, scope = formula(reduced), direction = "both", trace = F)
+
+# Get back the original t so that we can plot over this range
+t = 1:length(y)
+```
+
+Plot residuals (SoH)
+```{r}
+plot(t,y, type="l", col="darkgrey", ylab="", main = "Residuals with fitted seasonal component")
+lines(t, fitted(fit.back), col="red")
+ts.plot(residuals(fit.back), main="After seasonal components removed", ylab = "")
+# y = residuals(fit.back)
+resid = fit.back$residuals
+```
+
+Plots of PACF and ACF for residuals  
+```{r, echo = FALSE}
+pacf(resid, main = "Partial Autocorrelation Function")
+acf(resid, main = "Autocorrelation Function")
+```
+
+Model Fitting
+```{r}
+require(forecast)
+fit.y = auto.arima(resid, allowmean = F, trace = F, stepwise = F, d = 1) # Do I need this d?
+wn = resid(fit.y)
+plot(wn)
+fit.y
+```
+
+Ljung-Box Test
+```{r}
+Box.test(wn, type = "Ljung-Box", lag = floor(min(2*d, n/5)))
+```
+
+
+Testing residuals for normality
+```{r}
+qqnorm(wn)
+qqline(wn)
+hist(wn, main = "Histogram of White Noise Residuals")
+shapiro.test(wn)
+```
+
+Forecasting
+```{r}
+# Create noise forecast
+fc = forecast(fit.y, h=12, level = 0.95)
+
+# Plot the noise forecast
+plot(fc)
+
+# Zoom in on the forecast
+plot(fc, xlim=c(730,760))
+
+# Forecast noise plus seasonal component
+season.fc = fit.back$fitted.values[1:12]
+
+y.fc = c(y, season.fc+fc$mean)
+fc.all = diffinv(y.fc, difference=1, xi =  x[1])
+
+# Plotting
+plot(fc.all, type = "l", col = "dark grey")
+lines(data2, col = "red", type = "l")
+
+# fc.full = c(data2[1:3], fc.all)
+
+forecast_ts = ts(fc.all, start = c(1954, 01), frequency = 12)
+fore_2016 = forecast_ts[744:756]
+
+plot(fc.all, type = "o", col = "dark grey", xlim = c(720, 760), main = "Shasta Reservoir Levels", ylab = "Percentage of Reservoir Capacity")
+lines(data2, col = "red", type = "o")
+
+# ts.plot(data2[730:756], col = "dark grey", type = "o", ylim = c(0, 100), ylab = "Reservoir Capacity (Percentage)")
+# lines(fc.all[730:756], col = "red", type = "o")
+
+plot(1:750, data2, col = "dark grey", type = "o", xlim = c(730, 760), ylab = "Reservoir Capacity (Percentage)", ylim = c(0, 100)) #747
+lines(747:760, c(data2[747], fore_2016), type = "o", col = "red")
+```
+

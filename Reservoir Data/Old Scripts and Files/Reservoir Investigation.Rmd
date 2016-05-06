@@ -1,0 +1,47 @@
+---
+title: "Reservoir Investigation"
+author: "Jeremy Chan"
+date: "November 15, 2015"
+output: html_document
+---
+
+List of major reservoirs | Reservoir ID:
+
+Trinity Lake | CLE
+Lake Shasta | SHA
+Lake Oroville | ORO
+New Melones | NML
+Folsom Lake | FOL
+Don Pedro | DNP
+Exchequer | EXC
+San Luis | SNL
+Millerton Lake | MIL
+Pine Flat | PNF
+Castaic Lake | CAS
+Lake Perris | PRR
+
+Pulling reservoir information from CDEC database:
+```{r}
+library(sharpshootR)
+library(XML)
+# List of reservoirs of interest, daily intervals, current up until November 13, 2015
+resList = c("CLE", "SHA", "ORO", "NML", "FOL", "DNP", "EXC", "SNL", "MIL", "PNF", "CAS", "PRR")
+resData = lapply(resList, function(x) CDECquery(x, 15, interval = "D", "1900-01-01", "2015-11-13"))
+
+# Finding Maximum capacity from XML table
+u = "http://cdec.water.ca.gov/misc/resinfo.html" # Reservoir URL
+table = readHTMLTable(u) # Pulls Reservoir Table 
+table = table[[1]] # Turns list into data frame
+names(table) = c("ID", "Dam", "Lake", "Stream", "Capacity") # Renames Columns of Table to adjust formatting
+capacityList = table$Capacity # Pulls List of all Capacities
+positions = sapply(1:length(resList), function(x) grep(resList[x], table2$ID)) # Obtains positions of all reservoirs of interest
+finalCapList = capacityList[c(positions)] # Creates list of capacities from reservoirs of interest
+finalCapList = as.numeric(gsub(",", "", finalCapList)) # Turns list into numerics
+
+# Adds ID Column, and capacity column to reservoir data; computes capacity for each reservoir
+for(i in 1:12)
+{
+  resData[[i]]$ID = resList[[i]] #adds ID Column
+  resData[[i]]$Capacity = (resData[[i]]$value/finalCapList[[i]])*100 #Computes capacity %
+}
+```

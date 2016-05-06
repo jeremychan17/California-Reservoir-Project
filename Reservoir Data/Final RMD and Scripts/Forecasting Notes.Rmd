@@ -1,0 +1,38 @@
+---
+title: "Forecasting Notes"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+OLD STUFF
+```{r}
+
+shasta = CDECquery("SHA", 15, interval = "M", "1900-01-01", Sys.Date())
+shasta$cap = shasta$value/4552000 * 100
+model = fit.model(shasta)
+fc = produce_forecasts(model)
+forecastplot(shasta)
+forecast.all(shasta)
+
+oroville = CDECquery("ORO", 15, interval = "M", "1900-01-01", Sys.Date())
+oroville$cap = oroville$value/3537577 * 100
+model_o = fit.model(oroville)
+fc = produce_forecasts(model_o)
+forecastplot(oroville)
+forc = forecast.all(oroville)
+
+folsom = CDECquery("FOL", 15, interval = "M", "1900-01-01", Sys.Date())
+folsom$cap = folsom$value/977000 * 100
+forc2 = forecast.all(folsom)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

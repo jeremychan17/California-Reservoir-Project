@@ -65,7 +65,7 @@ for(i in 1:length(resList))
   resData[[i]]$cap = (resData[[i]]$value/finalCapList[[i]])*100 #Computes capacity %
 }
 
-keep(resData, forecast.all, sure = T)
+keep(resData, forecast.all, forecast.2014, sure = T)
 ```
 
 Plotting
@@ -142,7 +142,7 @@ resData[[11]] = resData[[11]][378:length(resData[[11]]$cap),]
 
 ```
 
-Forecasting
+Forecasting 2016
 ```{r}
 forc_CLE = forecast.all(resData[[1]])
 forc_SHA = forecast.all(resData[[2]])
@@ -152,7 +152,22 @@ forc_FOL = forecast.all(resData[[5]])
 forc_DNP = forecast.all(resData[[6]])
 forc_SNL = forecast.all(resData[[7]])
 forc_MIL = forecast.all(resData[[8]])
-forc_PNF = forecast.all(resData[[9]]) # Being weird, missing multiple NAs
+forc_PNF = forecast.all(resData[[9]])
 forc_CAS = forecast.all(resData[[10]])
 forc_PRR = forecast.all(resData[[11]])
+```
+
+Forecasting 2014
+```{r}
+forc_CLE_2014 = forecast.2014(resData[[1]])
+forc_SHA_2014 = forecast.2014(resData[[2]])
+forc_ORO_2014 = forecast.2014(resData[[3]])
+forc_NML_2014 = forecast.2014(resData[[4]])
+forc_FOL_2014 = forecast.2014(resData[[5]])
+forc_DNP_2014 = forecast.2014(resData[[6]])
+forc_SNL_2014 = forecast.2014(resData[[7]])
+forc_MIL_2014 = forecast.2014(resData[[8]])
+forc_PNF_2014 = forecast.2014(resData[[9]])
+forc_CAS_2014 = forecast.2014(resData[[10]])
+forc_PRR_2014 = forecast.2014(resData[[11]])
 ```

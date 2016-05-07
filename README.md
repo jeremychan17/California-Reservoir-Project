@@ -3,10 +3,4 @@ This is an independent honors project started during the spring quarter of my se
 
 Currently, the code is mostly finished and most of the changes will be adding to my final report. 
 
-Ideas for future exploration:
-SARIMA models
-Modeling trend with exponential fits instead of linear fits
-Testing the forecasts for other years
-Spatio-temporal analysis
-Streamlining code
-Automated data cleaning
+Ideas for future exploration: SARIMA models, Modeling trend with exponential fits instead of linear fits, Testing the forecasts for other years, Spatio-temporal analysis, Streamlining code, Automated data cleaning

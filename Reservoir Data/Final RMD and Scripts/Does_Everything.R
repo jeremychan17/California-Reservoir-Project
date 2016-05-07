@@ -164,9 +164,20 @@ forecast.all = function(waterObject)
   hist(wn, main = paste("Residuals of", ID, "Model"))
   
   # Forecast Plot
+  
+  # Zoomed out
+  plot(full_series, type = "l", main = 
+         paste("Twelve Month Forecast of", ID, "\n Reservoir Capacity"), ylab = 
+         "Capacity (Percentage)", ylim = c(0, 100), xlab = "Year")
+  lines(point_series, col = "red", type = "l")
+  lines(upper_series, col = "red", lty = 2)
+  lines(lower_series, col = "red", lty = 2)
+  
+  # Zoomed In
   year = (as.numeric(substr(lastobs, 0, 4)))
   plot(full_series, xlim = c(year-1, year+1), type = "o", main = 
-         paste("Twelve Month Forecast of", ID, "\n Reservoir Capacity"), sub = "Test")
+         paste("Twelve Month Forecast of", ID, "\n Reservoir Capacity"), ylab = 
+         "Capacity (Percentage)", ylim = c(0, 100), xlab = "Year")
   lines(point_series, col = "red", type = "o")
   lines(upper_series, col = "red", lty = 2)
   lines(lower_series, col = "red", lty = 2)

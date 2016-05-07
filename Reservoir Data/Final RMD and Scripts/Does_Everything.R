@@ -1,25 +1,26 @@
 forecast.all = function(waterObject)
 {
-  library(sharpshootR)
-  library(XML)
-  
+
   # Finds first january and last december
-  firstobs = grep("January", waterObject$month)[1]
-  lastobs = grep("December", waterObject$month)[length(grep("December", waterObject$month))]
+  firstjan = grep("January", waterObject$month)[1]
+  lastdec = grep("December", waterObject$month)[length(grep("December", waterObject$month))]
+  
+  # LAST DECEMBER IS NOT CORRECT
   
   # Pulls dates
-  d1 = substr(strptime(waterObject[firstobs,]$datetime, format = "%F"), 0, 10)
-  d2 = substr(strptime(waterObject[lastobs,]$datetime, format = "%F"), 0, 10)
+  first_jan = substr(strptime(waterObject[firstjan,]$datetime, format = "%F"), 0, 10)
+  last_dec = substr(strptime(waterObject[lastdec,]$datetime, format = "%F"), 0, 10)
   
   # Creates Ranges
-  start_range = c(as.numeric(substr(d1, 0, 4)), 1)
-  end_range = c(as.numeric(substr(d2, 0, 4)), 12)
+  start_range = c(as.numeric(substr(first_jan, 0, 4)), 1)
+  end_range = c(as.numeric(substr(last_dec, 0, 4)), 12)
   
   # Creates Time Series
-  temp_series = ts(waterObject$cap, start = start_range, end = end_range, frequency = 12)
+  # year_series = ts(waterObject$cap, start = start_range, end = end_range, frequency = 12)
+  year_series = ts(waterObject$cap[firstjan:lastdec], start = start_range, end = end_range, frequency = 12)
   
   # Set up variables
-  x = as.vector(temp_series)
+  x = as.vector(year_series)
   n = length(data)
   t = 1:n
   
@@ -27,7 +28,11 @@ forecast.all = function(waterObject)
   y = sapply(1:length(x), function(i){
     if(is.na(x[i])==T)
     {
-      x[i] = (x[i-1]+x[i+1])/2
+      if(i == 2)
+      {
+        x[i] = (x[i-1]+x[i+1])/2
+      }
+      else {x[i] = (x[i-2]+x[i-1]+x[i+1]+x[i+2])/4}
     }
     else x[i] = x[i]
   })
@@ -100,59 +105,85 @@ forecast.all = function(waterObject)
   
   # Create combined seasonality and noise forecast
   y.fc = c(y, season.fc+fc$mean)
-#   y.upper = c(season.fc+fc$upper)
-#   y.lower = c(season.fc+fc$lower)
   bound = (fc$upper - fc$lower)/2
   
   # Differencing Inverse to return to original values
   fc.all = diffinv(y.fc, difference=1, xi =  x[1])
-  fc.upper = fc.all[649:660]+bound
-  fc.lower = fc.all[649:660]-bound
+  fc.upper = fc.all[(length(x)+1):(length(x)+12)]+bound
+  fc.lower = fc.all[(length(x)+1):(length(x)+12)]-bound
+  
+  forecast.list = list("point.forecast" = fc.all[(length(x)+1):(length(x)+12)], 
+              "upper.forecast" = fc.upper, "lower.forecast" = fc.lower)
+  
+  # Objects to return
+  model = fit.y
+  point.forecast = forecast.list$point.forecast
+  upper.forecast = forecast.list$upper.forecast
+  lower.forecast = forecast.list$lower.forecast
   
   #TESTING works, but need to make modular
-  plot(fc.all, type = "l", col = "gray", xlim = c(640, 700))
-  lines(648:660, c(fc.all[648], fc.upper), col = "red", type = "l")
-  lines(648:660, c(fc.all[648], fc.lower), col = "red", type = "l")
+#   plot(fc.all, type = "l", col = "gray", xlim = c(640, 700))
+#   lines(648:660, c(fc.all[648], fc.upper), col = "red", type = "l")
+#   lines(648:660, c(fc.all[648], fc.lower), col = "red", type = "l")
   
-  model = fit.y
-  forecast = fc.all
-  data = waterObject$capacity
-  fore_2016 = forecast[((length(forecast))-11):length(forecast)]
+  # length(x) = 648
+  # fc interval = (length(x)+1):(length(x)+12)
+  # plotting interval 
+  
+ 
+  #fore_2016 = forecast[((length(forecast))-11):length(forecast)]
   
   # Finds first january and last december
-  lastobs = length(waterObject$capacity)
+  lastobs = length(waterObject$cap)
   
   # Pulls dates
-  d1 = substr(strptime(waterObject[1,]$datetime, format = "%F"), 0, 10)
-  d2 = substr(strptime(waterObject[length(waterObject$cap),]$datetime, format = "%F"), 0, 10)
+  firstobs = substr(strptime(waterObject[1,]$datetime, format = "%F"), 0, 10)
+  lastobs = substr(strptime(waterObject[length(waterObject$cap),]$datetime, format = "%F"), 0, 10)
   
   # Creates Ranges
-  start_range = c(as.numeric(substr(d1, 0, 4)), as.numeric(substr(d1, 6,7)))
-  end_range = c(as.numeric(substr(d2, 0, 4)), as.numeric(substr(d2, 6,7)))
+  full_range_start = c(as.numeric(substr(firstobs, 0, 4)), as.numeric(substr(firstobs, 6,7)))
+  full_range_end = c(as.numeric(substr(lastobs, 0, 4)), as.numeric(substr(lastobs, 6,7)))
+  
+  forecast_start = c(as.numeric(substr(last_dec, 0, 4)), 1)
+  forecast_end = c(as.numeric(substr(lastobs, 0, 4)), 12)
+  
+  point_joined = c(year_series[length(year_series)], point.forecast)
+  upper_joined = c(year_series[length(year_series)], upper.forecast)
+  lower_joined = c(year_series[length(year_series)], lower.forecast)
   
   # Creates Time Series
-  temp_series = ts(waterObject$cap, start = start_range, end = end_range, frequency = 12)
+  full_series = ts(waterObject$cap, start = full_range_start, end = full_range_end, frequency = 12)
+  point_series = ts(point_joined, start = end_range, end = forecast_end, frequency = 12)
+  upper_series = ts(upper_joined, start = end_range, end = forecast_end, frequency = 12)
+  lower_series = ts(lower_joined, start = end_range, end = forecast_end, frequency = 12)
   
-  # Forecast Starting Index
-  forecast_start = length(temp_series) - as.numeric(substr(d2, 6, 7))
+  # Create Plots
   
-  # Plots
+  # Residuals Plot
   ID = waterObject[1,]$ID
+  hist(wn, main = paste("Residuals of", ID, "Model"))
   
-  hist(wn, main = paste("Histogram of Residuals of", ID))
+  # Forecast Plot
+  year = (as.numeric(substr(lastobs, 0, 4)))
+  plot(full_series, xlim = c(year-1, year+1), type = "o", main = 
+         paste("Twelve Month Forecast of", ID, "\n Reservoir Capacity"), sub = "Test")
+  lines(point_series, col = "red", type = "o")
+  lines(upper_series, col = "red", lty = 2)
+  lines(lower_series, col = "red", lty = 2)
   
-  plot(1:length(temp_series), temp_series, main = paste("Twelve Month Forecast of", ID, " Reservoir Capacity"), 
-       col= "dark grey", type = "o", xlim = c(length(temp_series)-20, length(temp_series)+10), 
-       ylab = "Reservoir Capacity (Percentage)", ylim = c(0, 100))
-  lines(forecast_start:(forecast_start+12), c(temp_series[length(temp_series)-end_range[2]], fore_2016), type = "o", col = "red")
-  if(shapiro.test(wn)$p.value>.05)
-  { 
-    lines(forecast_start:(forecast_start+12), c(temp_series[length(temp_series)-end_range[2]], fore_2016+fc$upper), col="red", lty=2)
-    lines(forecast_start:(forecast_start+12), c(temp_series[length(temp_series)-end_range[2]], fore_2016-fc$upper), col="red", lty=2)
-  }
-  else{print("Warning: Residuals are not normal, prediction interval not included.")}
+#   if(shapiro.test(wn)$p.value<.05)
+#   {
+#     print("Warning: Residuals are not normal according to , prediction interval not included.")
+#   }
  
+  # Objects to return
+  model = fit.y
+  point.forecast = forecast.list$point.forecast
+  upper.forecast = forecast.list$upper.forecast
+  lower.forecast = forecast.list$lower.forecast
   
-  
-  returnList = list(model = fit.y, forecast = fc.all, residuals = wn)
+  # Return Call
+  returnList = list(model = fit.y, forecast.list = forecast.list,
+                    point.forecast = point.forecast, upper.forecast = upper.forecast, 
+                    lower.forecast = lower.forecast, residuals = wn)
 }

@@ -20,6 +20,7 @@ Libraries
 ```{r}
 library(sharpshootR)
 library(XML)
+library(gdata)
 ```
 
 List of major reservoirs | Reservoir ID:
@@ -44,7 +45,7 @@ Data Retrieval
 # resList = c("CLE", "SHA", "ORO", "NML", "FOL", "DNP", "EXC", "SNL", "MIL", "PNF", "CAS", "PRR")
 # EXC is not working
 resList = c("CLE", "SHA", "ORO", "NML", "FOL", "DNP", "SNL", "MIL", "PNF", "CAS", "PRR")
-resData = lapply(resList, function(x) CDECquery(x, 15, interval = "M", "1900-01-01", Sys.Date()))
+# resData = lapply(resList, function(x) CDECquery(x, 15, interval = "M", "1900-01-01", Sys.Date()))
 resData = lapply(resList, function(x) CDECquery(x, 15, interval = "M", "1900-01-01", "2016-04-30"))
 
 # Capacity table
@@ -63,6 +64,8 @@ for(i in 1:length(resList))
   resData[[i]]$ID = resList[[i]] #adds ID Column
   resData[[i]]$cap = (resData[[i]]$value/finalCapList[[i]])*100 #Computes capacity %
 }
+
+keep(resData, forecast.all, sure = T)
 ```
 
 Plotting

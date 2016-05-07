@@ -87,10 +87,13 @@ plot(resData[[7]]$datetime, resData[[7]]$cap, type = "l", main = "San Luis (SNL)
 plot(resData[[8]]$datetime, resData[[8]]$cap, type = "l", main = "Millerton Lake (MIL)", 
      ylab = "Capacity (Percentage)", xlab = "Date (Year)")
 plot(resData[[9]]$datetime, resData[[9]]$cap, type = "l", main = "Pine Flat (PNF)", 
-     ylab = "Capacity (Percentage)", xlab = "Date (Year)") # Being weird, missing multiple NAs
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)") 
 plot(resData[[10]]$datetime, resData[[10]]$cap, type = "l", main = "Castaic Lake (CAS)", 
      ylab = "Capacity (Percentage)", xlab = "Date (Year)")
 plot(resData[[11]]$datetime, resData[[11]]$cap, type = "l", main = "Lake Perris (PRR)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)")
+
+plot(test$datetime, test$cap, type = "l", main = "Lake Perris (PRR)", 
      ylab = "Capacity (Percentage)", xlab = "Date (Year)")
 ```
 
@@ -112,7 +115,7 @@ sum(is.na(resData[[10]]$cap)) # CAS 1 NA
 sum(is.na(resData[[11]]$cap)) # PRR 1 NA
   which(is.na(resData[[11]]$cap)) # PRR 48 # Imputation will handle
   
-# Cleaning ONF
+# Cleaning PNF
 resData[[9]][10:22,]
 # PNF_temp = CDECquery("PNF", 15, interval = "D", "1952-09-01", "1953-10-01") # no daily data, use hist average for that month
 monthList = levels(as.factor(resData[[9]]$month)) # List of Months
@@ -131,6 +134,11 @@ for(i in 1:(length(naList)-1))
   resData[[9]][naList[i],]$cap = histMeanVector[i]
 }
 # Fixes all but 322
+
+# Cleaning PRR
+# Drop stabilizes at 378
+# Drop all observations before 378
+resData[[11]] = resData[[11]][378:length(resData[[11]]$cap),]
 
 ```
 

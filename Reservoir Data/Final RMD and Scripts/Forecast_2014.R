@@ -1,4 +1,31 @@
-forecast.2014 = function(waterObject)
+# The purpose of this function is to create a twelve month 95% confidence forecast for a given 
+# California reservoir. The year predicted is 2014. 
+
+# Expected Input: The function takes a "reservoir" object. The object is created using the
+# R package "sharpshootR." See the associated documentation for that package for more information
+# on retrieving the necessary information. A sample call to the necessary function as well
+# as a call for this function is included below.
+
+# Sample Input: 
+# temp = CDECquery(x, 15, interval = "M", "1900-01-01", Sys.Date())
+# forcast.all(temp)
+
+# Expected Output: forecast.all has several outputs. The first output is three plots: The first 
+# plot is a histogram of the time series model residuals, used to check for normality of the
+# residuals. The second plot is the entire time series plus the forecast and prediction interval.
+# The forecast and prediction interval are all in red lines, with the prediction interval denoted
+# by a dotted red line. The third plot is a zoomed-in plot of the prediction, including the 
+# year being predicted and the previous year for reference. Again, the point forecast is indicated
+# by a red line, but this time each month is denoted by a circle. The prediction interval 
+# remains as a dotted red line. Additionally, the function returns several objects shown below:
+# $model returns the time series model which was fitted to the data
+# $forecast.list returns the point forecast as well as the upper and lower 95% prediction interval
+# $point.forecast returns only the point forecast
+# $upper.forecast returns only the upper 95% prediction interval bound
+# $lower.forecast returns only the lower 95% prediction interval bound
+# $residuals returns the residuals from the fitted time series 
+
+modelforecast.2014 = function(waterObject)
 {
   # Finds first january and last december
   firstjan = grep("January", waterObject$month)[1]

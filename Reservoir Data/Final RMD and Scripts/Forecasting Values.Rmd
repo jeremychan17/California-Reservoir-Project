@@ -4,17 +4,6 @@ author: "Jeremy Chan"
 date: "April 21, 2016"
 output: html_document
 ---
-Questions to ask (4/27):
-Better imputation methods?
-Impute mulptile NAs
-Final report format
-For every NA value, pull daily data and form average?
-Converting x-axis into time -email Duncan + data/code and report guidelines
-
-Questions for Patrick
-review forecasting code
-is d necessary in auto.arima
-should I be forecasting raw reservoir levels or capacities?
 
 Libraries
 ```{r}
@@ -31,7 +20,6 @@ Lake Oroville | ORO
 New Melones | NML
 Folsom Lake | FOL
 Don Pedro | DNP
-Exchequer | EXC
 San Luis | SNL
 Millerton Lake | MIL
 Pine Flat | PNF
@@ -40,13 +28,8 @@ Lake Perris | PRR
 
 Data Retrieval
 ```{r}
-
-# List of reservoirs of interest, monthly intervals
-# resList = c("CLE", "SHA", "ORO", "NML", "FOL", "DNP", "EXC", "SNL", "MIL", "PNF", "CAS", "PRR")
-# EXC is not working
 resList = c("CLE", "SHA", "ORO", "NML", "FOL", "DNP", "SNL", "MIL", "PNF", "CAS", "PRR")
-# resData = lapply(resList, function(x) CDECquery(x, 15, interval = "M", "1900-01-01", Sys.Date()))
-resData = lapply(resList, function(x) CDECquery(x, 15, interval = "M", "1900-01-01", "2016-04-30"))
+resData = lapply(resList, function(x) CDECquery(x, 15, interval = "M", "1900-01-01", Sys.Date()))
 
 # Capacity table
 u = "http://cdec.water.ca.gov/misc/resinfo.html" # Reservoir URL

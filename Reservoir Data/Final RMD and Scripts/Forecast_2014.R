@@ -31,8 +31,6 @@ modelforecast.2014 = function(waterObject)
   firstjan = grep("January", waterObject$month)[1]
   lastdec = grep("December", waterObject$month)[length(grep("December", waterObject$month))]
   
-  # LAST DECEMBER IS NOT CORRECT
-  
   # Pulls dates
   first_jan = substr(strptime(waterObject[firstjan,]$datetime, format = "%F"), 0, 10)
   last_dec = substr(strptime(waterObject[lastdec,]$datetime, format = "%F"), 0, 10)

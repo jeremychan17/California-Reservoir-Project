@@ -190,8 +190,17 @@ forecast.all = function(waterObject)
   
   # Create Plots
   
-  # Residuals Plot
+  # Plot Raw Data
   ID = waterObject[1,]$ID
+  raw_data = ts(waterObject$cap, start = full_range_start, end = full_range_end, frequency = 12)
+  plot(raw_data, type = "l", main = paste(ID, "Capacity Levels (Raw)"), ylab = 
+         "Capacity (Percentage)", ylim = c(0, 100), xlab = "Year")
+  
+  # Plot Cleaned Data
+  plot(full_series, type = "l", main = paste(ID, "Capacity Levels (Cleaned)"), ylab = 
+         "Capacity (Percentage)", ylim = c(0, 100), xlab = "Year")
+  
+  # Residuals Plot
   hist(wn, main = paste("Residuals of", ID, "Model"))
   
   # Forecast Plot

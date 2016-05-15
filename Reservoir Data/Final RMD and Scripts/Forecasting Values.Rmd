@@ -29,7 +29,7 @@ Lake Perris | PRR
 Data Retrieval
 ```{r}
 resList = c("CLE", "SHA", "ORO", "NML", "FOL", "DNP", "SNL", "MIL", "PNF", "CAS", "PRR")
-resData = lapply(resList, function(x) CDECquery(x, 15, interval = "M", "1900-01-01", Sys.Date()))
+rawData = lapply(resList, function(x) CDECquery(x, 15, interval = "M", "1900-01-01", "2016-04-30"))
 
 # Capacity table
 u = "http://cdec.water.ca.gov/misc/resinfo.html" # Reservoir URL
@@ -44,44 +44,45 @@ finalCapList = as.numeric(gsub(",", "", finalCapList)) # Turns list into numeric
 # Adds Capacity and computes capacity for each reservoir
 for(i in 1:length(resList))
 {
-  resData[[i]]$ID = resList[[i]] #adds ID Column
-  resData[[i]]$cap = (resData[[i]]$value/finalCapList[[i]])*100 #Computes capacity %
+  rawData[[i]]$ID = resList[[i]] #adds ID Column
+  rawData[[i]]$cap = (resData[[i]]$value/finalCapList[[i]])*100 #Computes capacity %
 }
 
-keep(resData, forecast.all, forecast.2014, sure = T)
+resData = rawData # resData will be the cleaned data
+
+keep(rawData, resData, forecast.all, forecast.2014, sure = T)
 ```
 
-Plotting
+Plotting Raw Data
 ```{r}
-plot(resData[[1]]$datetime, resData[[1]]$cap, type = "l", main = "Trinity Lake (CLE)", 
+plot(rawData[[1]]$datetime, rawData[[1]]$cap, type = "l", main = "Trinity Lake (CLE) Raw", 
      ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(resData[[2]]$datetime, resData[[2]]$cap, type = "l", main = "Lake Shasta (SHA)", 
+plot(rawData[[2]]$datetime, rawData[[2]]$cap, type = "l", main = "Lake Shasta (SHA) Raw", 
      ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(resData[[3]]$datetime, resData[[3]]$cap, type = "l", main = "Lake Oroville (ORO)", 
+plot(rawData[[3]]$datetime, rawData[[3]]$cap, type = "l", main = "Lake Oroville (ORO) Raw", 
      ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(resData[[4]]$datetime, resData[[4]]$cap, type = "l", main = "New Melones (NML)", 
+plot(rawData[[4]]$datetime, rawData[[4]]$cap, type = "l", main = "New Melones (NML) Raw", 
      ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(resData[[5]]$datetime, resData[[5]]$cap, type = "l", main = "Folsom Lake (FOL)", 
+plot(rawData[[5]]$datetime, rawData[[5]]$cap, type = "l", main = "Folsom Lake (FOL) Raw", 
      ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(resData[[6]]$datetime, resData[[6]]$cap, type = "l", main = "Don Pedro (DNP)", 
+plot(rawData[[6]]$datetime, rawData[[6]]$cap, type = "l", main = "Don Pedro (DNP) Raw", 
      ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(resData[[7]]$datetime, resData[[7]]$cap, type = "l", main = "San Luis (SNL)", 
+plot(rawData[[7]]$datetime, rawData[[7]]$cap, type = "l", main = "San Luis (SNL) Raw", 
      ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(resData[[8]]$datetime, resData[[8]]$cap, type = "l", main = "Millerton Lake (MIL)", 
+plot(rawData[[8]]$datetime, rawData[[8]]$cap, type = "l", main = "Millerton Lake (MIL) Raw", 
      ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(resData[[9]]$datetime, resData[[9]]$cap, type = "l", main = "Pine Flat (PNF)", 
+plot(rawData[[9]]$datetime, rawData[[9]]$cap, type = "l", main = "Pine Flat (PNF) Raw", 
      ylab = "Capacity (Percentage)", xlab = "Date (Year)") 
-plot(resData[[10]]$datetime, resData[[10]]$cap, type = "l", main = "Castaic Lake (CAS)", 
+plot(rawData[[10]]$datetime, rawData[[10]]$cap, type = "l", main = "Castaic Lake (CAS) Raw", 
      ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(resData[[11]]$datetime, resData[[11]]$cap, type = "l", main = "Lake Perris (PRR)", 
-     ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-
-plot(test$datetime, test$cap, type = "l", main = "Lake Perris (PRR)", 
+plot(rawData[[11]]$datetime, rawData[[11]]$cap, type = "l", main = "Lake Perris (PRR) Raw", 
      ylab = "Capacity (Percentage)", xlab = "Date (Year)")
 ```
 
 Data Cleaning
 ```{r}
+# Checks for NAs 
+# If only one or two NAs (that are spaced apart), imputation in forecast.all will handle it
 sum(is.na(resData[[1]]$cap)) # CLE no NA
 sum(is.na(resData[[2]]$cap)) # SHA 2 NA
   which(is.na(resData[[2]]$cap)) # SHA 31, 196 # Far enough away that the imputation will handle
@@ -92,33 +93,19 @@ sum(is.na(resData[[6]]$cap)) # DNP no NA
 sum(is.na(resData[[7]]$cap)) # SNL no NA
 sum(is.na(resData[[8]]$cap)) # MIL no NA
 sum(is.na(resData[[9]]$cap)) # PNF 10 NA
-  which(is.na(resData[[9]]$cap)) # PNF 10, 11, 12, 13, 14, 15, 16, 21, 22, 322
+  which(is.na(resData[[9]]$cap)) # PNF 10, 11, 12, 13, 14, 15, 16, 21, 22, 322 # Just drop 10-22
 sum(is.na(resData[[10]]$cap)) # CAS 1 NA
   which(is.na(resData[[10]]$cap)) # CAS 48 # Imputation will handle
 sum(is.na(resData[[11]]$cap)) # PRR 1 NA
   which(is.na(resData[[11]]$cap)) # PRR 48 # Imputation will handle
   
 # Cleaning PNF
-resData[[9]][10:22,]
-# PNF_temp = CDECquery("PNF", 15, interval = "D", "1952-09-01", "1953-10-01") # no daily data, use hist average for that month
-monthList = levels(as.factor(resData[[9]]$month)) # List of Months
-histMeanVector = 0 # Empty Vector
-for(i in 1:length(monthList)) # Creates historical mean vector
-  {
-    histMeanVector[i] = mean(subset(resData[[9]], month == monthList[i])$cap, na.rm = TRUE)
-}
-
-naList = which(is.na(resData[[9]]$cap))
-
-for(i in 1:(length(naList)-1))
-{
-  month = resData[[9]][naList[i],]$month
-  meanIndex = grep(resData[[9]][naList[i],]$month, monthList)
-  resData[[9]][naList[i],]$cap = histMeanVector[i]
-}
+# Since most of the NA values are near the beginning, we will simply drop values 1-22 and start at 23. 
+resData[[9]] = resData[[9]][23:length(resData[[9]]$cap),]
 # Fixes all but 322
 
 # Cleaning PRR
+# Since there was a draining in 2005, we will only use observations from past that point
 # Drop stabilizes at 378
 # Drop all observations before 378
 resData[[11]] = resData[[11]][378:length(resData[[11]]$cap),]

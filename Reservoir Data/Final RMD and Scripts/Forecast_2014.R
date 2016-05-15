@@ -25,7 +25,7 @@
 # $lower.forecast returns only the lower 95% prediction interval bound
 # $residuals returns the residuals from the fitted time series 
 
-modelforecast.2014 = function(waterObject)
+forecast.2014 = function(waterObject)
 {
   # Finds first january and last december
   firstjan = grep("January", waterObject$month)[1]
@@ -183,15 +183,25 @@ modelforecast.2014 = function(waterObject)
   
   # Create Plots
   
-  # Residuals Plot
+  # Plot Raw Data
   ID = waterObject[1,]$ID
-  hist(wn, main = paste("Residuals of", ID, "Model"))
+  index_2015 = grep(2015, waterObject$year)[1]
+  raw_data = ts(waterObject$cap[0:index_2015], start = full_range_start, end = full_range_end, frequency = 12)
+  plot(raw_data, type = "l", main = paste(ID, "Capacity Levels (Raw)"), ylab = 
+         "Capacity (Percentage)", ylim = c(0, 100), xlab = "Year")
+  
+  # Plot Cleaned Data
+  plot(full_series, type = "l", main = paste(ID, "Capacity Levels (Cleaned)"), ylab = 
+         "Capacity (Percentage)", ylim = c(0, 100), xlab = "Year")
+  
+  # Residuals Plot
+  hist(wn, main = paste("Residuals of 2014", ID, "Model"))
   
   # Forecast Plot
   
   # Zoomed out
   plot(full_series, type = "l", main = 
-         paste("Twelve Month Forecast of", ID, "\n Reservoir Capacity"), ylab = 
+         paste("2014 Forecast of", ID, "\n Reservoir Capacity"), ylab = 
          "Capacity (Percentage)", ylim = c(0, 100), xlab = "Year")
   lines(point_series, col = "red", type = "l")
   lines(upper_series, col = "red", lty = 2)
@@ -200,7 +210,7 @@ modelforecast.2014 = function(waterObject)
   # Zoomed In
   year = (as.numeric(substr(lastobs, 0, 4)))
   plot(full_series, xlim = c(2013, 2015), type = "o", main = 
-         paste("Twelve Month Forecast of", ID, "\n Reservoir Capacity"), ylab = 
+         paste("2014 Forecast of", ID, "\n Reservoir Capacity"), ylab = 
          "Capacity (Percentage)", ylim = c(0, 100), xlab = "Year")
   lines(point_series, col = "red", type = "o")
   lines(upper_series, col = "red", lty = 2)

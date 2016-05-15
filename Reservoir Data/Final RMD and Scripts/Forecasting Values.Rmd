@@ -55,28 +55,30 @@ keep(rawData, resData, forecast.all, forecast.2014, sure = T)
 
 Plotting Raw Data
 ```{r}
-plot(rawData[[1]]$datetime, rawData[[1]]$cap, type = "l", main = "Trinity Lake (CLE) Raw", 
-     ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(rawData[[2]]$datetime, rawData[[2]]$cap, type = "l", main = "Lake Shasta (SHA) Raw", 
-     ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(rawData[[3]]$datetime, rawData[[3]]$cap, type = "l", main = "Lake Oroville (ORO) Raw", 
-     ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(rawData[[4]]$datetime, rawData[[4]]$cap, type = "l", main = "New Melones (NML) Raw", 
-     ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(rawData[[5]]$datetime, rawData[[5]]$cap, type = "l", main = "Folsom Lake (FOL) Raw", 
-     ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(rawData[[6]]$datetime, rawData[[6]]$cap, type = "l", main = "Don Pedro (DNP) Raw", 
-     ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(rawData[[7]]$datetime, rawData[[7]]$cap, type = "l", main = "San Luis (SNL) Raw", 
-     ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(rawData[[8]]$datetime, rawData[[8]]$cap, type = "l", main = "Millerton Lake (MIL) Raw", 
-     ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(rawData[[9]]$datetime, rawData[[9]]$cap, type = "l", main = "Pine Flat (PNF) Raw", 
-     ylab = "Capacity (Percentage)", xlab = "Date (Year)") 
-plot(rawData[[10]]$datetime, rawData[[10]]$cap, type = "l", main = "Castaic Lake (CAS) Raw", 
-     ylab = "Capacity (Percentage)", xlab = "Date (Year)")
-plot(rawData[[11]]$datetime, rawData[[11]]$cap, type = "l", main = "Lake Perris (PRR) Raw", 
-     ylab = "Capacity (Percentage)", xlab = "Date (Year)")
+plot(rawData[[1]]$datetime, rawData[[1]]$cap, type = "l", main = "CLE Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[2]]$datetime, rawData[[2]]$cap, type = "l", main = "SHA Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[3]]$datetime, rawData[[3]]$cap, type = "l", main = "ORO Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[4]]$datetime, rawData[[4]]$cap, type = "l", main = "NML Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[5]]$datetime, rawData[[5]]$cap, type = "l", main = "FOL Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[6]]$datetime, rawData[[6]]$cap, type = "l", main = "DNP Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[7]]$datetime, rawData[[7]]$cap, type = "l", main = "SNL Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[8]]$datetime, rawData[[8]]$cap, type = "l", main = "MIL Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[9]]$datetime, rawData[[9]]$cap, type = "l", main = "PNF Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100)) 
+plot(rawData[[10]]$datetime, rawData[[10]]$cap, type = "l", main = "CAS Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[11]]$datetime, rawData[[11]]$cap, type = "l", main = "PRR Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+
+
 ```
 
 Data Cleaning

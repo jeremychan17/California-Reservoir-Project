@@ -122,8 +122,13 @@ forecast.all = function(waterObject)
   }
   
   # Test for residual independence
-  if(Box.test(wn)$p.value < .05){
+  if((Box.test(wn, type = "Ljung-Box", lag = 24)$p.value) < .05){
     print("Warning: Residuals are not independent.")
+  }
+  
+  # Test for residual normality
+  if(shapiro.test(wn)$p.value < .05){
+    print("Warning: Residuals are not normal by Shapiro-Wilk Test.")
   }
   
   ## BREAK ##

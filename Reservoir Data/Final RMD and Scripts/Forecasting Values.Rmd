@@ -45,7 +45,7 @@ finalCapList = as.numeric(gsub(",", "", finalCapList)) # Turns list into numeric
 for(i in 1:length(resList))
 {
   rawData[[i]]$ID = resList[[i]] #adds ID Column
-  rawData[[i]]$cap = (resData[[i]]$value/finalCapList[[i]])*100 #Computes capacity %
+  rawData[[i]]$cap = (rawData[[i]]$value/finalCapList[[i]])*100 #Computes capacity %
 }
 
 resData = rawData # resData will be the cleaned data

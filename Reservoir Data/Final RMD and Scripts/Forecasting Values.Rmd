@@ -50,7 +50,7 @@ for(i in 1:length(resList))
 
 resData = rawData # resData will be the cleaned data
 
-keep(rawData, resData, forecast.all, forecast.2014, sure = T)
+keep(rawData, resData, forecast.all, forecast.2014, finalCapList, sure = T)
 ```
 
 Plotting Raw Data

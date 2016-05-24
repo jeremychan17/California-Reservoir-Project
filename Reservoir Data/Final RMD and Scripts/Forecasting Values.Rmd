@@ -143,3 +143,29 @@ forc_PNF_2014 = forecast.2014(resData[[9]])
 forc_CAS_2014 = forecast.2014(resData[[10]])
 forc_PRR_2014 = forecast.2014(resData[[11]])
 ```
+
+Model Checking
+```{r}
+forc_CLE$model
+forc_CLE_2014$model # same model
+forc_SHA$model
+forc_SHA_2014$model # different models
+forc_ORO$model
+forc_ORO_2014$model # same model
+forc_NML$model
+forc_NML_2014$model # same model
+forc_FOL$model
+forc_FOL_2014$model # different model
+forc_DNP$model
+forc_DNP_2014$model # same model
+forc_SNL$model
+forc_SNL_2014$model # same model
+forc_MIL$model
+forc_MIL_2014$model # same model
+forc_PNF$model
+forc_PNF_2014$model # different models
+forc_CAS$model
+forc_CAS_2014$model # different models
+forc_PRR$model
+forc_PRR_2014$model # different models
+```

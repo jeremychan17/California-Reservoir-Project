@@ -116,17 +116,17 @@ resData[[11]] = resData[[11]][378:length(resData[[11]]$cap),]
 
 Forecasting 2016
 ```{r}
-forc_CLE = forecast.all(resData[[1]])
-forc_SHA = forecast.all(resData[[2]])
-forc_ORO = forecast.all(resData[[3]])
-forc_NML = forecast.all(resData[[4]])
-forc_FOL = forecast.all(resData[[5]])
-forc_DNP = forecast.all(resData[[6]])
-forc_SNL = forecast.all(resData[[7]])
-forc_MIL = forecast.all(resData[[8]])
-forc_PNF = forecast.all(resData[[9]])
-forc_CAS = forecast.all(resData[[10]])
-forc_PRR = forecast.all(resData[[11]])
+forc_CLE = forecast.all(resData[[1]]) # 2/4
+forc_SHA = forecast.all(resData[[2]]) # 0/4
+forc_ORO = forecast.all(resData[[3]]) # 1/4
+forc_NML = forecast.all(resData[[4]]) # 2/4
+forc_FOL = forecast.all(resData[[5]]) # 0/4
+forc_DNP = forecast.all(resData[[6]]) # 2/4
+forc_SNL = forecast.all(resData[[7]]) # 2/4
+forc_MIL = forecast.all(resData[[8]]) # 3/4
+forc_PNF = forecast.all(resData[[9]]) # 4/4
+forc_CAS = forecast.all(resData[[10]]) # 1/4
+forc_PRR = forecast.all(resData[[11]]) # 4/4
 ```
 
 Forecasting 2014

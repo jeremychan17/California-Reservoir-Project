@@ -49,13 +49,13 @@ forecast.all = function(waterObject)
   {
     year_series = year_series[1:length(year_series)-1]
   }
+  
   # Set up variables
   x = as.vector(year_series)
   n = length(data)
   t = 1:n
   
   # Impute any missing values
-  
   y = sapply(1:length(x), function(i){
     if(is.na(x[i])==T)
     {
@@ -131,7 +131,7 @@ forecast.all = function(waterObject)
     print("Warning: Residuals are not normal by Shapiro-Wilk Test.")
   }
   
-  ## BREAK ##
+  ## Forecasting ##
   
   # Forecast noise
   fc = forecast(fit.y, h=12, level = 0.95)
@@ -156,18 +156,6 @@ forecast.all = function(waterObject)
   point.forecast = forecast.list$point.forecast
   upper.forecast = forecast.list$upper.forecast
   lower.forecast = forecast.list$lower.forecast
-  
-  #TESTING works, but need to make modular
-#   plot(fc.all, type = "l", col = "gray", xlim = c(640, 700))
-#   lines(648:660, c(fc.all[648], fc.upper), col = "red", type = "l")
-#   lines(648:660, c(fc.all[648], fc.lower), col = "red", type = "l")
-  
-  # length(x) = 648
-  # fc interval = (length(x)+1):(length(x)+12)
-  # plotting interval 
-  
- 
-  #fore_2016 = forecast[((length(forecast))-11):length(forecast)]
   
   # Finds first january and last december
   lastobs = length(waterObject$cap)
@@ -227,11 +215,6 @@ forecast.all = function(waterObject)
   lines(upper_series, col = "red", lty = 2)
   lines(lower_series, col = "red", lty = 2)
   
-#   if(shapiro.test(wn)$p.value<.05)
-#   {
-#     print("Warning: Residuals are not normal according to , prediction interval not included.")
-#   }
- 
   # Objects to return
   model = fit.y
   point.forecast = forecast.list$point.forecast

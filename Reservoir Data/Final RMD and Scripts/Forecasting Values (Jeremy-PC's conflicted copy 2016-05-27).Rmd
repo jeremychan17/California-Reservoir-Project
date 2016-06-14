@@ -1,0 +1,171 @@
+---
+title: "Reservoir_v3"
+author: "Jeremy Chan"
+date: "April 21, 2016"
+output: html_document
+---
+
+Libraries
+```{r}
+library(sharpshootR)
+library(XML)
+library(gdata)
+```
+
+List of major reservoirs | Reservoir ID:
+
+Trinity Lake | CLE
+Lake Shasta | SHA
+Lake Oroville | ORO
+New Melones | NML
+Folsom Lake | FOL
+Don Pedro | DNP
+San Luis | SNL
+Millerton Lake | MIL
+Pine Flat | PNF
+Castaic Lake | CAS
+Lake Perris | PRR
+
+Data Retrieval
+```{r}
+resList = c("CLE", "SHA", "ORO", "NML", "FOL", "DNP", "SNL", "MIL", "PNF", "CAS", "PRR")
+rawData = lapply(resList, function(x) CDECquery(x, 15, interval = "M", "1900-01-01", "2016-04-30"))
+
+# Capacity table
+u = "http://cdec.water.ca.gov/misc/resinfo.html" # Reservoir URL
+table = readHTMLTable(u)[1] # Pulls Reservoir Table 
+table = table[[1]] # Takes first Column
+names(table) = c("ID", "Dam", "Lake", "Stream", "Capacity") # Renames Columns of Table
+capacityList = table$Capacity # Pulls List of all Capacities
+positions = sapply(1:length(resList), function(x) grep(resList[x], table$ID)) # Obtains positions of all reservoirs of interest
+finalCapList = capacityList[c(positions)] # List of capacities from reservoirs of interest
+finalCapList = as.numeric(gsub(",", "", finalCapList)) # Turns list into numerics
+
+# Adds Capacity and computes capacity for each reservoir
+for(i in 1:length(resList))
+{
+  rawData[[i]]$ID = resList[[i]] #adds ID Column
+  rawData[[i]]$cap = (rawData[[i]]$value/finalCapList[[i]])*100 #Computes capacity %
+}
+
+resData = rawData # resData will be the cleaned data
+
+keep(rawData, resData, forecast.all, forecast.2014, finalCapList, sure = T)
+```
+
+Plotting Raw Data
+```{r}
+plot(rawData[[1]]$datetime, rawData[[1]]$cap, type = "l", main = "CLE Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[2]]$datetime, rawData[[2]]$cap, type = "l", main = "SHA Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[3]]$datetime, rawData[[3]]$cap, type = "l", main = "ORO Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[4]]$datetime, rawData[[4]]$cap, type = "l", main = "NML Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[5]]$datetime, rawData[[5]]$cap, type = "l", main = "FOL Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[6]]$datetime, rawData[[6]]$cap, type = "l", main = "DNP Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[7]]$datetime, rawData[[7]]$cap, type = "l", main = "SNL Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[8]]$datetime, rawData[[8]]$cap, type = "l", main = "MIL Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[9]]$datetime, rawData[[9]]$cap, type = "l", main = "PNF Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100)) 
+plot(rawData[[10]]$datetime, rawData[[10]]$cap, type = "l", main = "CAS Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+plot(rawData[[11]]$datetime, rawData[[11]]$cap, type = "l", main = "PRR Capacity Levels (Raw)", 
+     ylab = "Capacity (Percentage)", xlab = "Date (Year)", ylim = c(0, 100))
+
+
+```
+
+Data Cleaning
+```{r}
+# Checks for NAs 
+# If only one or two NAs (that are spaced apart), imputation in forecast.all will handle it
+sum(is.na(resData[[1]]$cap)) # CLE no NA
+sum(is.na(resData[[2]]$cap)) # SHA 2 NA
+  which(is.na(resData[[2]]$cap)) # SHA 31, 196 # Far enough away that the imputation will handle
+sum(is.na(resData[[3]]$cap)) # ORO no NA
+sum(is.na(resData[[4]]$cap)) # NML no NA
+sum(is.na(resData[[5]]$cap)) # FOL no NA
+sum(is.na(resData[[6]]$cap)) # DNP no NA
+sum(is.na(resData[[7]]$cap)) # SNL no NA
+sum(is.na(resData[[8]]$cap)) # MIL no NA
+sum(is.na(resData[[9]]$cap)) # PNF 10 NA
+  which(is.na(resData[[9]]$cap)) # PNF 10, 11, 12, 13, 14, 15, 16, 21, 22, 322 # Just drop 10-22
+sum(is.na(resData[[10]]$cap)) # CAS 1 NA
+  which(is.na(resData[[10]]$cap)) # CAS 48 # Imputation will handle
+sum(is.na(resData[[11]]$cap)) # PRR 1 NA
+  which(is.na(resData[[11]]$cap)) # PRR 48 # Imputation will handle
+  
+# Cleaning PNF
+# Since most of the NA values are near the beginning, we will simply drop values 1-22 and start at 23. 
+resData[[9]] = resData[[9]][23:length(resData[[9]]$cap),]
+# Fixes all but 322
+
+# Cleaning PRR
+# Since there was a draining in 2005, we will only use observations from past that point
+# Drop stabilizes at 378
+# Drop all observations before 378
+resData[[11]] = resData[[11]][378:length(resData[[11]]$cap),]
+
+```
+
+Forecasting 2016
+```{r}
+forc_CLE = forecast.all(resData[[1]]) # 2/4
+forc_SHA = forecast.all(resData[[2]]) # 0/4
+forc_ORO = forecast.all(resData[[3]]) # 1/4
+forc_NML = forecast.all(resData[[4]]) # 2/4
+forc_FOL = forecast.all(resData[[5]]) # 0/4
+forc_DNP = forecast.all(resData[[6]]) # 2/4
+forc_SNL = forecast.all(resData[[7]]) # 2/4
+forc_MIL = forecast.all(resData[[8]]) # 3/4
+forc_PNF = forecast.all(resData[[9]]) # 4/4
+forc_CAS = forecast.all(resData[[10]]) # 1/4
+forc_PRR = forecast.all(resData[[11]]) # 4/4
+```
+
+Forecasting 2014
+```{r}
+forc_CLE_2014 = forecast.2014(resData[[1]])
+forc_SHA_2014 = forecast.2014(resData[[2]])
+forc_ORO_2014 = forecast.2014(resData[[3]])
+forc_NML_2014 = forecast.2014(resData[[4]])
+forc_FOL_2014 = forecast.2014(resData[[5]])
+forc_DNP_2014 = forecast.2014(resData[[6]])
+forc_SNL_2014 = forecast.2014(resData[[7]])
+forc_MIL_2014 = forecast.2014(resData[[8]])
+forc_PNF_2014 = forecast.2014(resData[[9]])
+forc_CAS_2014 = forecast.2014(resData[[10]])
+forc_PRR_2014 = forecast.2014(resData[[11]])
+```
+
+Model Checking
+```{r}
+forc_CLE$model
+forc_CLE_2014$model # same model
+forc_SHA$model
+forc_SHA_2014$model # different models
+forc_ORO$model
+forc_ORO_2014$model # same model
+forc_NML$model
+forc_NML_2014$model # same model
+forc_FOL$model
+forc_FOL_2014$model # different model
+forc_DNP$model
+forc_DNP_2014$model # same model
+forc_SNL$model
+forc_SNL_2014$model # same model
+forc_MIL$model
+forc_MIL_2014$model # same model
+forc_PNF$model
+forc_PNF_2014$model # different models
+forc_CAS$model
+forc_CAS_2014$model # different models
+forc_PRR$model
+forc_PRR_2014$model # different models
+```

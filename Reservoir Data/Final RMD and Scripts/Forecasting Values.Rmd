@@ -29,7 +29,7 @@ Lake Perris | PRR
 Data Retrieval
 ```{r}
 resList = c("CLE", "SHA", "ORO", "NML", "FOL", "DNP", "SNL", "MIL", "PNF", "CAS", "PRR")
-rawData = lapply(resList, function(x) CDECquery(x, 15, interval = "M", "1900-01-01", "2016-04-30"))
+rawData = lapply(resList, function(x) CDECquery(x, 15, interval = "M", "1900-01-01", "2016-05-31"))
 
 # Capacity table
 u = "http://cdec.water.ca.gov/misc/resinfo.html" # Reservoir URL

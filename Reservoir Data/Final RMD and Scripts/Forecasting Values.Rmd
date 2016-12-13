@@ -29,7 +29,7 @@ Lake Perris | PRR
 Data Retrieval
 ```{r}
 resList = c("CLE", "SHA", "ORO", "NML", "FOL", "DNP", "SNL", "MIL", "PNF", "CAS", "PRR")
-rawData = lapply(resList, function(x) CDECquery(x, 15, interval = "M", "1900-01-01", "2016-05-31"))
+rawData = lapply(resList, function(x) CDECquery(x, 15, interval = "M", "1900-01-01", "2016-11-30"))
 
 # Capacity table
 u = "http://cdec.water.ca.gov/misc/resinfo.html" # Reservoir URL
@@ -85,32 +85,7 @@ Data Cleaning
 ```{r}
 # Checks for NAs 
 # If only one or two NAs (that are spaced apart), imputation in forecast.all will handle it
-sum(is.na(resData[[1]]$cap)) # CLE no NA
-sum(is.na(resData[[2]]$cap)) # SHA 2 NA
-  which(is.na(resData[[2]]$cap)) # SHA 31, 196 # Far enough away that the imputation will handle
-sum(is.na(resData[[3]]$cap)) # ORO no NA
-sum(is.na(resData[[4]]$cap)) # NML no NA
-sum(is.na(resData[[5]]$cap)) # FOL no NA
-sum(is.na(resData[[6]]$cap)) # DNP no NA
-sum(is.na(resData[[7]]$cap)) # SNL no NA
-sum(is.na(resData[[8]]$cap)) # MIL no NA
-sum(is.na(resData[[9]]$cap)) # PNF 10 NA
-  which(is.na(resData[[9]]$cap)) # PNF 10, 11, 12, 13, 14, 15, 16, 21, 22, 322 # Just drop 10-22
-sum(is.na(resData[[10]]$cap)) # CAS 1 NA
-  which(is.na(resData[[10]]$cap)) # CAS 48 # Imputation will handle
-sum(is.na(resData[[11]]$cap)) # PRR 1 NA
-  which(is.na(resData[[11]]$cap)) # PRR 48 # Imputation will handle
-  
-# Cleaning PNF
-# Since most of the NA values are near the beginning, we will simply drop values 1-22 and start at 23. 
-resData[[9]] = resData[[9]][23:length(resData[[9]]$cap),]
-# Fixes all but 322
 
-# Cleaning PRR
-# Since there was a draining in 2005, we will only use observations from past that point
-# Drop stabilizes at 378
-# Drop all observations before 378
-resData[[11]] = resData[[11]][378:length(resData[[11]]$cap),]
 
 ```
 
